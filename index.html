@@ -28,14 +28,20 @@
         const snakeBorder = 'darkblue';
         let snake = [{ x: 200, y: 200 }, { x: 190, y: 200 }, { x: 180, y: 200 }, { x: 170, y: 200 }, { x: 160, y: 200 }];
 
+        // True if changing direction
+        let changingDirection = false;
         // Horizontal velocity
         let dx = 10;
         // Vertical velocity
         let dy = 0;
-
+        // Start game
         main();
 
+        document.addEventListener("keydown", changeDirection);
+
         function main() {
+            if (gameEnd()) return;
+            changingDirection = false;
             setTimeout(function onTick() {
                 clearCanvas();
                 moveSnake();
@@ -76,12 +82,58 @@
         // Di chuyển
         function moveSnake() {
             // Create the new Snake's head
-            let head = { x: snake[0].x + dx, y: snake[0].y };
+            let head = { x: snake[0].x + dx, y: snake[0].y + dy};
             // Add the new head to the beginning of snake body
             snake.unshift(head);
             snake.pop();
         }
 
+        function changeDirection(event) {
+            const LEFT_KEY = 37;
+            const RIGHT_KEY = 39;
+            const UP_KEY = 38;
+            const DOWN_KEY = 40;
+
+            // Prevent the snake from reversing
+            if (changingDirection) return;
+            changingDirection = true;
+            let keyPressed = event.keyCode;
+            let goingUp = dy === -10;
+            let goingDown = dy === 10;
+            let goingRight = dx === 10;
+            let goingLeft = dx === -10;
+
+            if (keyPressed === LEFT_KEY && !goingRight) {
+                dx = -10;
+                dy = 0;
+            }
+
+            if (keyPressed === UP_KEY && !goingDown) {
+                dx = 0;
+                dy = -10;
+            }
+
+            if (keyPressed === RIGHT_KEY && !goingLeft) {
+                dx = 10;
+                dy = 0;
+            }
+
+            if (keyPressed === DOWN_KEY && !goingUp) {
+                dx = 0;
+                dy = 10;
+            }
+        }
+
+        function gameEnd() {
+            for (let i = 4; i < snake.length; i++) {
+                if (snake[i].x === snake[0].x && snake[i].y === snake[0].y) return true
+            }
+            let hitLeftWall = snake[0].x < 0;
+            let hitRightWall = snake[0].x > snakeBoard.width - 10;
+            let hitToptWall = snake[0].y < 0;
+            let hitBottomWall = snake[0].y > snakeBoard.height - 10;
+            return hitLeftWall || hitRightWall || hitToptWall || hitBottomWall
+        }
     </script>
 </body>
 
