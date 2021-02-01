@@ -34,8 +34,10 @@
         let dx = 10;
         // Vertical velocity
         let dy = 0;
+        let foodX, foodY;
         // Start game
         main();
+        genFood();
 
         document.addEventListener("keydown", changeDirection);
 
@@ -44,11 +46,31 @@
             changingDirection = false;
             setTimeout(function onTick() {
                 clearCanvas();
-                moveSnake();
+                drawFood();
+                drawGrid();
                 drawSnake();
+                moveSnake();
                 // Call main again
                 main();
             }, 100)
+        }
+
+        function drawGrid() {
+            // màu đường viền
+            snakeBoardCTX.strokeStyle = '#cccccc';
+            for (let i = 10; i < 400; i += 10) {
+                snakeBoardCTX.beginPath();
+                snakeBoardCTX.moveTo(0, i);
+                snakeBoardCTX.lineTo(400, i);
+                snakeBoardCTX.stroke();
+            }
+
+            for (let i = 10; i < 400; i += 10) {
+                snakeBoardCTX.beginPath();
+                snakeBoardCTX.moveTo(i, 0);
+                snakeBoardCTX.lineTo(i, 400);
+                snakeBoardCTX.stroke();
+            }
         }
 
         // Vẽ đường viền xung quanh canvas
@@ -82,10 +104,17 @@
         // Di chuyển
         function moveSnake() {
             // Create the new Snake's head
-            let head = { x: snake[0].x + dx, y: snake[0].y + dy};
+            let head = { x: snake[0].x + dx, y: snake[0].y + dy };
             // Add the new head to the beginning of snake body
             snake.unshift(head);
-            snake.pop();
+            let hasEatenFood = snake[0].x === foodX && snake[0].y === foodY;
+            if (hasEatenFood) {
+                // Generate new food location
+                genFood();
+            } else {
+                // Remove the last part of snake body
+                snake.pop();
+            }
         }
 
         function changeDirection(event) {
@@ -133,6 +162,27 @@
             let hitToptWall = snake[0].y < 0;
             let hitBottomWall = snake[0].y > snakeBoard.height - 10;
             return hitLeftWall || hitRightWall || hitToptWall || hitBottomWall
+        }
+
+        //====== Food
+        function randomFood(min, max) {
+            return Math.round((Math.random() * (max - min) + min) / 10) * 10;
+        }
+
+        function genFood() {
+            foodX = randomFood(0, snakeBoard.width - 10);
+            foodY = randomFood(0, snakeBoard.height - 10);
+            snake.forEach(function hasSnakeEatenFood(part) {
+                let hasEaten = part.x == foodX && part.y == foodY;
+                if (hasEaten) genFood();
+            });
+        }
+
+        function drawFood() {
+            snakeBoardCTX.fillStyle = 'lightgreen';
+            snakeBoardCTX.strokestyle = 'darkgreen';
+            snakeBoardCTX.fillRect(foodX, foodY, 10, 10);
+            snakeBoardCTX.strokeRect(foodX, foodY, 10, 10);
         }
     </script>
 </body>
