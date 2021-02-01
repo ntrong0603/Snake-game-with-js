@@ -13,10 +13,16 @@
             left: 50%;
             transform: translate(-50%, -50%);
         }
+
+        #score {
+            text-align: center;
+            font-size: 140px;
+        }
     </style>
 </head>
 
 <body>
+    <div id="score">0</div>
     <canvas id="snake-board" width="400" height="400"></canvas>
 
     <script>
@@ -35,6 +41,7 @@
         // Vertical velocity
         let dy = 0;
         let foodX, foodY;
+        let score = 0;
         // Start game
         main();
         genFood();
@@ -109,6 +116,10 @@
             snake.unshift(head);
             let hasEatenFood = snake[0].x === foodX && snake[0].y === foodY;
             if (hasEatenFood) {
+                // Increase score
+                score += 10;
+                // Display score on screen
+                document.getElementById('score').innerHTML = score;
                 // Generate new food location
                 genFood();
             } else {
